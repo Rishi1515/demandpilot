@@ -1,0 +1,9 @@
+# Core app. Tested with Python 3.10 to 3.12 and the newest versions of each package listed here.
+streamlit>=1.45,<2
+pandas>=2.1
+numpy>=1.26
+statsmodels>=0.14.1
+lightgbm>=4.3
+scikit-learn>=1.3        # needed by LightGBM's scikit-learn interface
+plotly>=5.22
+joblib>=1.3
