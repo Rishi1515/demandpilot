@@ -38,6 +38,26 @@ HORIZONS = [7, 14, 30]
 N_FOLDS = 6
 
 st.set_page_config(page_title="DemandPilot", page_icon="📦", layout="wide")
+st.logo(str(Path(__file__).parent / "assets" / "inforaise_logo_dark.svg"), size="large")
+
+
+def render_footer() -> None:
+    st.markdown(
+        """
+<div style="margin-top:3rem;padding-top:0.9rem;border-top:1px solid rgba(0,0,0,0.12);
+            text-align:center;font-size:0.8rem;line-height:1.6;color:#6b6b6b;">
+  <strong>DemandPilot</strong> · Technical demo prepared for <strong>Inforaise</strong> · Built by Rishi Varma ·
+  <a href="https://github.com/Rishi1515/demandpilot" target="_blank" style="color:inherit;">Source on GitHub</a>
+</div>
+""",
+        unsafe_allow_html=True,
+    )
+
+
+def stop() -> None:
+    """Show the footer, then end this run (replaces bare st.stop so every page keeps the footer)."""
+    render_footer()
+    st.stop()
 
 
 # ----------------------------------------------------------------------------- cached steps
@@ -83,7 +103,7 @@ if source == UPLOAD:
         st.title("DemandPilot")
         st.info("Upload a CSV in the sidebar, or pick one of the sample datasets to try the app.")
         st.dataframe(SCHEMA_TABLE, hide_index=True)
-        st.stop()
+        stop()
     raw, name = up.getvalue(), up.name
 else:
     raw, name = SAMPLES[source].read_bytes(), SAMPLES[source].name
@@ -99,13 +119,13 @@ st.caption(
 
 if read_error:
     st.error(read_error)
-    st.stop()
+    stop()
 if not result.ok:
     for e in result.errors:
         st.error(e)
     for w in result.warnings:
         st.warning(w)
-    st.stop()
+    stop()
 
 clean = result.data
 key = data_hash(clean)
@@ -151,10 +171,10 @@ try:
         res = cached_forecast(key, pid, horizon, clean)
 except ValueError as exc:
     st.error(str(exc))
-    st.stop()
+    stop()
 except Exception as exc:  # noqa: BLE001 - never show a raw traceback to a business user
     st.error(f"This product could not be forecast ({type(exc).__name__}). Try another product or check its data.")
-    st.stop()
+    stop()
 horizon = res.horizon  # may be shorter than requested when history is short
 rec = recommend_for(res, inputs)
 facts = build_facts(res, rec, names[pid])
@@ -454,3 +474,5 @@ same recommended action.
 - One model per product. Products do not share information, so new products with little history are not covered.
 """
     )
+
+render_footer()
